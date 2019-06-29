@@ -5,6 +5,7 @@ pygame.font.init()
 
 
 class Game:
+	SPRITE_FOLDER = "sprites/"
 	surface = pygame.display.set_mode((0, 0), pygame.FULLSCREEN)
 	timer = time.time()
 	def __init__ (self):
@@ -12,7 +13,8 @@ class Game:
 		self.WIDTH, self.HEIGHT = pygame.display.get_surface().get_size()
 		self.background_color = (0, 0, 0)
 		self.score = 0
-		self.player = Player("player", "BattleBus.png", self.WIDTH - 160, self.HEIGHT - 140, 160, 140)
+		self.player = Player("player", self.SPRITE_FOLDER + "BattleBus.png", \
+			self.WIDTH - 160, self.HEIGHT - 140, 160, 140)
 		self.start()
 	
 	def start(self):
@@ -45,7 +47,8 @@ class Game:
 				if event.type == pygame.QUIT:
 						self.quit()
 		
-		# Handle bar movement using keysself.player = Player(self, "player", "BattleBus.png", self.WIDTH - 160, self.HEIGHT - 140, 160, 140)
+		# Handle bar movement using keysself.player = Player(self, "player",
+		# "BattleBus.png", self.WIDTH - 160, self.HEIGHT - 140, 160, 140)
 		pressed = pygame.key.get_pressed()
 		if pressed[pygame.K_RIGHT]:
 				self.player.x += self.player.x_velocity
@@ -102,15 +105,15 @@ class Player(Sprite):
 			super(Player, self).draw()
 	
 	def shoot(self):
-		bullet = Bullet("bullet", "Bullet.png", self.x + self.w // 2, self.y, 4, 10)
+		bullet = Bullet("bullet", Game.SPRITE_FOLDER + "Bullet.png", self.x + self.w // 2, self.y, 4, 10)
 		print(time.time() - Game.timer)
 		if time.time() - Game.timer > 1 / self.bullets_per_second:
 			Player.bullets.append(bullet)
 			Game.timer = time.time()
 	
 	def add_enemies(self):
-	  alien = Alien("alien", "Spaceship.png", 100, 100)
-	  gargoyle = Gargoyle("gargoyle", "Gargoyle.png", 100, 100, 100, 100)
+	  alien = Alien("alien", Game.SPRITE_FOLDER + "Spaceship.png", 100, 100)
+	  gargoyle = Gargoyle("gargoyle", Game.SPRITE_FOLDER + "Gargoyle.png", 100, 100, 100, 100)
 	  Player.enemies.extend((alien, gargoyle))
 
 class Alien(Sprite):
