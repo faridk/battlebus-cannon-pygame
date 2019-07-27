@@ -1,4 +1,6 @@
 import sys, time, pygame
+from decimal import Decimal
+from random import random, randint
 
 pygame.init()
 pygame.font.init()
@@ -64,12 +66,27 @@ class Sprite:
 		self.y = y
 		self.w = w
 		self.h = h
-		self.speed = 0
+		self.speed = 1
+		self.debug_font = pygame.font.SysFont("monospace", 15)
 
 	def draw(self):
 		Game.surface.blit(self.sprite, (self.x, self.y))
-
+		self.draw_debug_labels()
 	
+	# Draws debug info (like print but on the screen)
+	def draw_debug_labels(self):
+		TWOPLACES = Decimal(10) ** -2
+		x = Decimal(self.x).quantize(TWOPLACES)
+		y = Decimal(self.y).quantize(TWOPLACES)
+		speed = Decimal(self.speed).quantize(TWOPLACES)
+		location_label = self.debug_font.render('X: %s Y: %s' % (x, y), 1, (255, 255, 0))
+		speed_label = self.debug_font.render('V: %s' % (speed), 1, (255, 255, 0))
+		count_label = self.debug_font.render('Count: %s' % (Alien.instance_count), 1, (255, 255, 0))
+		Game.surface.blit(location_label, (self.x + self.w, self.y + self.h))
+		Game.surface.blit(speed_label, (self.x + self.w, self.y + self.h + 20))
+		Game.surface.blit(count_label, (self.x + self.w, self.y + self.h + 40))
+
+
 class Player(Sprite):
 	bullets = []
 	enemies = []
@@ -79,7 +96,7 @@ class Player(Sprite):
 		self.flipped_sprite = pygame.transform.flip(self.sprite, True, False) 
 		self.bullets_per_second = 5
 		self.speed = 5
-		self.add_enemies()
+		self.add_enemies(2, 2)
 
 	def draw(self):
 		if self.direction_left:
@@ -88,19 +105,23 @@ class Player(Sprite):
 		else:
 			# Draw normal
 			super(Player, self).draw()
-	
+
 	def shoot(self):
 		bullet = Bullet("bullet", Game.SPRITE_FOLDER + "Bullet.png", self.x + self.w // 2, self.y, 4, 10)
-		print(time.time() - Game.timer)
+		# print(time.time() - Game.timer)
 		if time.time() - Game.timer > 1 / self.bullets_per_second:
 			Player.bullets.append(bullet)
 			Game.timer = time.time()
 		
-	def add_enemies(self):
-		alien = Alien("alien", Game.SPRITE_FOLDER + "Spaceship.png", 100, 25, 100, 100)
-		gargoyle = Gargoyle("gargoyle", Game.SPRITE_FOLDER + "Gargoyle.png", 100, 100, 100, 100)
-		Player.enemies.append(alien)
-	
+	def add_enemies(self, alien_count, gargoyle_count):
+		for i in range(alien_count):
+			alien = Alien("alien", Game.SPRITE_FOLDER + "Spaceship.png", randint(0, Game.WIDTH), randint(0, Game.HEIGHT // 4), 100, 100)
+			alien.speed = random() + 0.5
+			Player.enemies.append(alien)
+		for i in range(gargoyle_count):
+			gargoyle = Gargoyle("gargoyle", Game.SPRITE_FOLDER + "Gargoyle.png", randint(0, Game.WIDTH), randint(0, Game.HEIGHT // 4), 100, 100)
+			gargoyle.speed = random() + 0.5
+			Player.enemies.append(gargoyle)
 
 class Enemy(Sprite):
 	def __init__(self, name, path, x, y, w, h):
@@ -139,23 +160,28 @@ class Enemy(Sprite):
 				self.right = True
 			if self.x > Game.WIDTH - self.w:
 				self.left = True
-			
 
 
 class Alien(Enemy):
+	instance_count = 0
 	def __init__(self, name, path, x, y, w, h):
 		super(Alien, self).__init__(name, path, x, y, w, h)
-		self.speed = 1
+		Alien.instance_count += 1
 
-	
+	def draw(self):
+		super(Alien, self).draw()
+
+
 class Gargoyle(Enemy):
+	instance_count = 0
 	def __init__(self, name, path, x, y, w, h):
 		super(Gargoyle, self).__init__(name, path, x, y, w, h)
-		self.speed = 200
+		Gargoyle.instance_count += 1
+
 class Bullet(Sprite):
 	def __init__(self, name, path, x, y, w, h):
 		super(Bullet, self).__init__(name, path, x, y, w, h)
-		self.speed = 10
+		self.speed = 2
 	
 	def draw(self):
 		self.y -= self.speed
