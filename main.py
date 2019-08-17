@@ -113,10 +113,8 @@ class Sprite:
 		speed = Decimal(self.speed).quantize(TWOPLACES)
 		location_label = Game.debug_font.render('X: %s Y: %s' % (x, y), 1, (255, 255, 0))
 		speed_label = Game.debug_font.render('V: %s' % (speed), 1, (255, 255, 0))
-		count_label = Game.debug_font.render('Count: %s' % (Alien.instance_count), 1, (255, 255, 0))
 		Game.surface.blit(location_label, (self.x + self.w, self.y + self.h))
 		Game.surface.blit(speed_label, (self.x + self.w, self.y + self.h + 20))
-		Game.surface.blit(count_label, (self.x + self.w, self.y + self.h + 40))
 
 class Player(Sprite):
 	bullets = []
@@ -125,8 +123,8 @@ class Player(Sprite):
 		super(Player, self).__init__(name, path, x, y, w, h)
 		self.direction_left = False
 		self.flipped_sprite = pygame.transform.flip(self.sprite, True, False) 
-		self.bullets_per_second = 5
-		self.speed = 5
+		self.bullets_per_second = 15
+		self.speed = 10
 
 	def draw(self):
 		if self.direction_left:
@@ -212,7 +210,7 @@ class Gargoyle(Enemy):
 class Bullet(Sprite):
 	def __init__(self, name, path, x, y, w, h):
 		super(Bullet, self).__init__(name, path, x, y, w, h)
-		self.speed = 5
+		self.speed = 10
 	
 	def draw(self):
 		self.y -= self.speed
